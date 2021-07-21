@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UsuarioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,23 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Auth::routes(['register' => true]);
+
+// Route::get('/home', [App\Http\Controllers\HomeController::class, 'lista'])->name('home');
+
+Route::get('/', [UsuarioController::class, 'listaClientes']);
+Route::middleware(['auth'])->group(function () {
+    Route::get('/home', [UsuarioController::class, 'listaClientes']);
+
+    //adciona o /usuario fixo na URL ex: /usuario/editar
+    Route::prefix('/usuario')->group(function () {
+        Route::get('/novo', function () {
+            return view('usuario-novo');
+        });
+        Route::put('/novo-usuario', [UsuarioController::class, 'novoUsuario']);
+
+        Route::get('/editar/{id}', [UsuarioController::class, 'editaUsuario']);
+        Route::put('/editar/{id}', [UsuarioController::class, 'salvaUsuario']);
+        Route::delete('/remove/{id}', [UsuarioController::class, 'removeUsuario']);
+    });
 });
