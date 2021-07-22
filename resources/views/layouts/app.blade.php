@@ -17,6 +17,7 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ mix('js/app.js') }}">
 
     {{-- JQUERY --}}
     <script src="{{ asset('/js/jquery-3.5.1.min.js') }}"></script>
@@ -42,6 +43,7 @@
 
                     </ul>
 
+
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <!-- Authentication Links -->
@@ -58,8 +60,26 @@
                         </li>
                         @endif
                         @else
-                        <li class="nav-item dropdown">
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                        <div class="btn-group">
+                            <button class="btn nav-item dropdown dropdown-toggle">
+                                {{ Auth::user()->name }}
+                            </button>
+                            <ul class="dropdown-menu">
+                                <!-- <li><a href="javascript:void(0)">Action 1</a></li> -->
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
+                                                         document.getElementById('logout-form').submit();">
+                                        {{ __('Sair') }}
+                                    </a>
+
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- <li class="nav-item dropdown">
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {{ Auth::user()->name }}
                             </a>
 
@@ -73,7 +93,7 @@
                                     @csrf
                                 </form>
                             </div>
-                        </li>
+                        </li> -->
                         @endguest
                     </ul>
                 </div>
@@ -87,5 +107,16 @@
         </main>
     </div>
 </body>
+<script>
+    $(document).click(function(e) {
+        var target = e.target;
+        $('.dropdown-menu').each(function() {
+            var $this = $(this);
+            var dropdown = $this.prev('.dropdown');
+            if (dropdown[0] == target) $(this).toggle();
+            else $(this).hide();
+        });
+    });
+</script>
 
 </html>

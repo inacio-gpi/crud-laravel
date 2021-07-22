@@ -10,56 +10,33 @@ use Illuminate\Support\Facades\Validator;
 class UsuarioController extends Controller
 {
 
-    public function showUsuario()
-    {
-        return view('layouts.usuario.edit-usuario');
-    }
-
     public function removeUsuario($id)
     {
-        User::findOrFail($id)->delete();
-        return redirect('/home');
+        // deleta usuario com mensagem de sucesso
+        $result = User::findOrFail($id)->delete();
+        if ($result) {
+            return response()->json(['success' => 'Usuário removido']);
+        }
+        return response()->json(['err' => 'Erro ao deletar usuário'], 400);
     }
 
-    public function updateUsuario(Request $request)
+    public function listaUsuarios()
     {
-
-        return User::create([
-            'name' => $request['name'],
-            'email' => $request['email'],
-            'password' => Hash::make($request['password']),
-        ]);
-    }
-    public function listaClientes()
-    {
+        // lista todos os usuarios
         $users = User::all();
         return view('home', ['users' => $users]);
     }
 
-    // public function salvaUsuario(Request $request)
-    // {
-    //     $user = auth()->user();
-    //     $data = $request->all();
-    //     // dd($data);
-    //     $arr["name"] = $data["nome"];
-    //     // $arr["email"] = $data["email"];
-    //     // $arr["regiao"] = $data["regiao"];
-    //     $arr["email"] = $data["email"];
-    //     // $arr[""] = $data[""];
-    //     $response = User::findOrFail($user->id)->update($arr);
-    //     // dd($response);
-    //     return redirect('/config-usuario');
-    // }
-
-    public function novoUsuario(Request $request)
+    public function salvaNovoUsuario(Request $request)
     {
+        // salva novo usuario com email nao repetido
         $data = $request->all();
-        // dd($data);
         $usuario = array();
 
         $usuario["name"] = $data["usuario_nome"];
         $usuario["email"] = $data["usuario_email"];
         $usuario["password"] = $data["usuario_senha"];
+        // valida entrada
         $validator =  Validator::make($usuario, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
@@ -67,20 +44,29 @@ class UsuarioController extends Controller
         ]);
         // retona erros de validacao
         if ($validator->fails()) {
-            return redirect('/usuario/novo/')
-                ->withErrors($validator)
-                ->withInput();
+            // return redirect('/usuario/novo/')
+            //     ->withErrors($validator)
+            //     ->withInput();
+
+            return response()->json($validator->errors(), 400);
         } else {
-            $user = new User();
-            $user->name = $usuario["name"];
-            $user->email = $usuario["email"];
-            $user->password = Hash::make($usuario["password"]);
-            $user->save();
-            return redirect('/home');
+            try {
+                $user = new User();
+                $user->name = $usuario["name"];
+                $user->email = $usuario["email"];
+                $user->password = Hash::make($usuario["password"]);
+                $user->save();
+                return response()->json(['success' => 'Cliente ID: ' . $user->id . ' salvo com sucesso.']);
+            } catch (\Exception $e) {
+                return response()->json(['success' => 'Usuario com o email já inserido.']);
+            }
         }
     }
-    public function salvaUsuario(Request $request, $id)
+
+    public function updateUsuario(Request $request, $id)
     {
+        // edita os usuarios
+        // nao deixa atualizar para um email q já existe no banco
         $data = $request->all();
         $usuario = array();
 
@@ -95,12 +81,19 @@ class UsuarioController extends Controller
             ]);
             // retona erros de validacao
             if ($validator->fails()) {
-                return redirect('/usuario/editar/' . $id)
-                    ->withErrors($validator)
-                    ->withInput();
+                // return redirect('/usuario/editar/' . $id)
+                //     ->withErrors($validator)
+                //     ->withInput();
+                return response()->json($validator->errors(), 400);
+                // echo "teste";die;
             } else {
-                User::findOrFail($id)->update($usuario);
-                return redirect('/usuario/editar/' . $id)->with('msg', 'Sucesso');
+                try {
+                    // return redirect('/usuario/editar/' . $id)->with('msg', 'Sucesso');
+                    User::findOrFail($id)->update($usuario);
+                    return response()->json(['success' => 'Atualizado com Sucesso']);
+                } catch (\Exception $e) {
+                    return response()->json(['success' => 'Usuario com o email já inserido.']);
+                }
             }
         } else {
             // valida update de usuario COM senha
@@ -112,42 +105,32 @@ class UsuarioController extends Controller
             ]);
             // retona erros de validacao
             if ($validator->fails()) {
-                return redirect('/usuario/editar/' . $id)
-                    ->withErrors($validator)
-                    ->withInput();
+                // return redirect('/usuario/editar/' . $id)
+                //     ->withErrors($validator)
+                //     ->withInput();
+
+                return response()->json($validator->errors(), 400);
             } else {
-                $usuario["password"] = Hash::make($data["usuario_senha"]);
-                User::findOrFail($id)->update($usuario);
-                return redirect('/usuario/editar/' . $id)->with('msg', 'Sucesso');
+
+                try {
+                    $usuario["password"] = Hash::make($data["usuario_senha"]);
+                    User::findOrFail($id)->update($usuario);
+
+                    // return redirect('/usuario/editar/' . $id)->with('msg', 'Sucesso');
+                    return response()->json(['success' => 'Atualizado com Sucesso']);
+                } catch (\Exception $e) {
+                    return response()->json(['success' => 'Usuario com o email já inserido.']);
+                }
             }
         }
     }
 
     public function editaUsuario($id)
     {
-        // $user = auth()->user();
-
-        // $event = User::findOrFail($id);
-        // if usuario nao logado
-        // if ($user->id != $event->usuario_id) {
-        //     return redirect('/clientes');
-        // }
+        // retorna pagina para cadastrar novo usuario
         $users = User::findOrFail($id);
-        // $cliente_documentos = ClienteDocumentos::all()->where('cliente_id', $id);
-        // $cliente_documentos = ClienteDocumentos::join('cliente_cnis', 'cliente_documentos.documento_nome', '=', (DB::table('cliente_documentos')) )->where('cliente_documentos.cliente_id', $id)->get();
-        // dd($cliente_documentos);
-        // dd($cliente_documentos[1]->documento_nome);
         return view('usuario-novo', [
             'users' => $users,
-        ]);
-        // return view('teste-layouts.cliente.edit-cliente', ['cliente' => $clientes[0]]);
-    }
-
-    public function editaPagamento()
-    {
-        // $cliente_dados_cnis = ClienteDadosCnis::all();
-        return view('layouts.usuario.edit-pagamento', [
-            // 'cliente' => $clientes,
         ]);
     }
 }

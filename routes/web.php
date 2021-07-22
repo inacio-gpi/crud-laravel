@@ -18,19 +18,20 @@ Auth::routes(['register' => true]);
 
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'lista'])->name('home');
 
-Route::get('/', [UsuarioController::class, 'listaClientes']);
+Route::get('/', [UsuarioController::class, 'listaUsuarios']);
 Route::middleware(['auth'])->group(function () {
-    Route::get('/home', [UsuarioController::class, 'listaClientes']);
+    Route::get('/home', [UsuarioController::class, 'listaUsuarios']);
 
     //adciona o /usuario fixo na URL ex: /usuario/editar
     Route::prefix('/usuario')->group(function () {
+
         Route::get('/novo', function () {
             return view('usuario-novo');
         });
-        Route::put('/novo-usuario', [UsuarioController::class, 'novoUsuario']);
+        Route::put('/novo-usuario', [UsuarioController::class, 'salvaNovoUsuario']);
 
         Route::get('/editar/{id}', [UsuarioController::class, 'editaUsuario']);
-        Route::put('/editar/{id}', [UsuarioController::class, 'salvaUsuario']);
+        Route::put('/editar/{id}', [UsuarioController::class, 'updateUsuario']);
         Route::delete('/remove/{id}', [UsuarioController::class, 'removeUsuario']);
     });
 });

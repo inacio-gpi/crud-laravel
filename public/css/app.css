@@ -153,6 +153,18 @@ sub {
 sup {
   top: -0.5em;
 }
+button.link-a{
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  color: #3490dc;
+  text-decoration: underline;
+  cursor: pointer;
+}
+button.link-a:hover{
+    color: #1d68a7;
+    text-decoration: underline;
+}
 
 a {
   color: #3490dc;
@@ -10001,4 +10013,35 @@ h3 {
     color: inherit;
     border-color: #dee2e6;
   }
+}
+.btn-group {
+    position: relative;
+    display: inline-block;
+    font-size: 0;
+    vertical-align: middle;
+}
+
+.btn-group+.btn-group {
+    margin-left: 16px;
+}
+
+.btn-group>.dropdown-menu {
+    list-style-type: none;
+    z-index: 1000;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    padding: 4px 0;
+    margin-top: 3px;
+    min-width: 160px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.btn-group>.dropdown-menu li a {
+    display: block;
+    padding: 3px 12px;
+    text-decoration: none;
 }

@@ -8,7 +8,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="form-group">
-            <a href="/usuario/novo" style="float: left;" class="btn btn-success ml-2">Novo Usuario</a>
+            <a href="/usuario/novo" style="float: left;" class="btn btn-success mb-2">Novo Usuario</a>
         </div>
     </div>
 </div>
@@ -51,14 +51,13 @@
                                         @csrf
                                         @method('DELETE')
                                         <span style="margin-left: 10px;">
-                                            <a href="#" onclick="
-                                                document.getElementById('remove-usuario-{{ $user->id }}').submit();
-                                            ">
+                                            <button type="submit" class="link-a">
+                                                <!-- <button href="#" onclick="document.getElementById('remove-usuario-{{ $user->id }}').submit();"> -->
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
                                                     <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
                                                 </svg>
-                                            </a>
+                                            </button>
                                         </span>
                                     </form>
                                 </span>
@@ -68,9 +67,44 @@
                         @endforeach
                     </tbody>
                 </table>
+                <p id="msg-success" class="position-absolute text-success d-none"></p>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function($) {
+
+        $('form').submit(function(event) {
+            event.preventDefault();
+            var id = event.target.id.split("-");
+            var id = id[2];
+            var url_post = event.currentTarget.action;
+            $.ajax({
+                url: url_post,
+                type: 'POST',
+                data: $(this).serialize(),
+                dataType: 'json'
+            }).done(function(result) {
+                if (result.success) {
+                    if ($("#msg-success").hasClass('d-none')) {
+                        $("#msg-success").toggleClass('d-none');
+                    }
+                    // console.log(id);s
+                    $("#msg-success").text(result.success);
+                    $("tr td:first-child").each(function(key, row) {
+                        if (parseInt($(this).text()) == parseInt(id)) {
+                            console.log("entrou");
+                            console.log(this);
+                            $(this).parent().remove();
+                        }
+                    })
+                }
+            });
+        });
+    });
+</script>
+
 
 @endsection
